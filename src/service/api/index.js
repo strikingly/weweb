@@ -857,18 +857,19 @@ var apiObj = {
     )
   },
   login: function (params) {
-    if (__wxConfig__ && __wxConfig__.weweb && __wxConfig__.weweb.loginUrl) {
-      // 引导到自定义的登录页面
-      if (__wxConfig__.weweb.loginUrl.indexOf('/') != 0) {
-        __wxConfig__.weweb.loginUrl = '/' + __wxConfig__.weweb.loginUrl
-      }
-      loginSourceUrl = __curPage__.url
-      apiObj.redirectTo({
-        url: __wxConfig__.weweb.loginUrl
-      })
-    } else {
-      bridge.invokeMethod('login', params)
-    }
+    params.success({ code: '0016kgOv0Pe5Pi1DupRv0V8hOv06kgOX' })
+    // if (__wxConfig__ && __wxConfig__.weweb && __wxConfig__.weweb.loginUrl) {
+    //   // 引导到自定义的登录页面
+    //   if (__wxConfig__.weweb.loginUrl.indexOf('/') != 0) {
+    //     __wxConfig__.weweb.loginUrl = '/' + __wxConfig__.weweb.loginUrl
+    //   }
+    //   loginSourceUrl = __curPage__.url
+    //   apiObj.redirectTo({
+    //     url: __wxConfig__.weweb.loginUrl
+    //   })
+    // } else {
+    //   bridge.invokeMethod('login', params)
+    // }
   },
   loginSuccess: function () {
     const url =
@@ -886,59 +887,63 @@ var apiObj = {
     bridge.invokeMethod('checkLogin', params)
   },
   checkSession: function (params) {
-    refreshSessionTimeHander && clearTimeout(refreshSessionTimeHander)
-    bridge.invokeMethod('refreshSession', params, {
-      beforeSuccess: function (res) {
-        refreshSessionTimeHander = setTimeout(function () {
-          bridge.invokeMethod('refreshSession')
-        }, 1e3 * res.expireIn)
-        delete res.err_code
-        delete res.expireIn
-      },
-      beforeAll: function (res) {
-        res.errMsg = res.errMsg.replace('refreshSession', 'checkSession')
-      }
-    })
+    params.success && params.success()
+    // refreshSessionTimeHander && clearTimeout(refreshSessionTimeHander)
+    // bridge.invokeMethod('refreshSession', params, {
+    //   beforeSuccess: function (res) {
+    //     refreshSessionTimeHander = setTimeout(function () {
+    //       bridge.invokeMethod('refreshSession')
+    //     }, 1e3 * res.expireIn)
+    //     delete res.err_code
+    //     delete res.expireIn
+    //   },
+    //   beforeAll: function (res) {
+    //     res.errMsg = res.errMsg.replace('refreshSession', 'checkSession')
+    //   }
+    // })
   },
   authorize: function (params) {
     bridge.invokeMethod('authorize', params)
   },
+  showShareMenu: function (params) {
+  },
+  getSetting: function (params) {
+    params.success && params.success({ authSetting: { "scope.userInfo": true } })
+  },
   getUserInfo: function (params) {
-    bridge.invokeMethod(
-      'operateWXData',
-      utils.assign(
-        {
-          data: {
-            api_name: 'webapi_getuserinfo',
-            data: params.data || {}
+    wx.request({
+      url: 'https://www.baidu.com',
+      success: function (res) {
+        params.success && params.success({
+          userInfo: {
+            "gender": 1,
+            "openId": "oi5R_4gAzcPzRosp2_5RjaNlRH_M",
+            "city": "Shenyang",
+            "nickName": "꯭王꯭大꯭屁꯭帅꯭",
+            "province": "Liaoning",
+            "avatarUrl": "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJpUVEPHtFUjdUfcen9Qkympk6vTWIyamcibWic9rr68DVCMxAicNu2t1CiawmDu0pR2eMIVsn79EnVnw/132",
+            "country": "China",
+            "language": "zh_CN",
+            "id": 897901
           }
-        },
-        params
-      ),
-      {
-        beforeAll: function (res) {
-          res.errMsg = res.errMsg.replace('operateWXData', 'getUserInfo')
-        },
-        beforeSuccess: function (res) {
-          res.rawData = res.data.data
-          try {
-            res.userInfo = JSON.parse(res.data.data)
-            res.signature = res.data.signature
-            res.data.encryptData &&
-              (console.group(new Date() + ' encryptData 字段即将废除'),
-                console.warn(
-                  '请使用 encryptedData 和 iv 字段进行解密，详见：https://mp.weixin.qq.com/debug/wxadoc/dev/api/open.html'
-                ),
-                console.groupEnd(),
-                (res.encryptData = res.data.encryptData))
-            res.data.encryptedData &&
-              ((res.encryptedData = res.data.encryptedData),
-                (res.iv = res.data.iv))
-            delete res.data
-          } catch (e) {}
-        }
+        })
+      },
+      fail: function (res) {
+        params.success && params.success({
+          userInfo: {
+            "gender": 1,
+            "openId": "oi5R_4gAzcPzRosp2_5RjaNlRH_M",
+            "city": "Shenyang",
+            "nickName": "꯭王꯭大꯭屁꯭帅꯭",
+            "province": "Liaoning",
+            "avatarUrl": "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJpUVEPHtFUjdUfcen9Qkympk6vTWIyamcibWic9rr68DVCMxAicNu2t1CiawmDu0pR2eMIVsn79EnVnw/132",
+            "country": "China",
+            "language": "zh_CN",
+            "id": 897901
+          }
+        })
       }
-    )
+    })
   },
   getFriends: function (params) {
     bridge.invokeMethod(
@@ -1801,5 +1806,6 @@ bridge.onMethod('onMapClick', function () {
 })
 
 utils.copyObj(wx, apiObj)
+wx.isInWeb = true
 window.wx = wx
 export default wx

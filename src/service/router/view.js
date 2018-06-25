@@ -153,8 +153,11 @@ export default class View extends Emitter {
         self.inlineCss(cssBody, p)
       })
   }
-  resizeWxss () {}
-  createPage (id, hidden, parent = document.body) {
+  resizeWxss() { }
+  createPage(id, hidden, parent) {
+    if (!parent) {
+      parent = document.body
+    }
     let el = document.createElement('div')
     el.setAttribute('id', 'weweb-view-' + id)
     el.setAttribute('view-id', id)

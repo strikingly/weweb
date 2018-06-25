@@ -42,7 +42,7 @@ function CreateContainer () {
   }
 }
 
-const navbarHeight = 42
+const navbarHeight = 0
 
 function handleTouchStart () {
   window.__curPage__.el.addEventListener(
