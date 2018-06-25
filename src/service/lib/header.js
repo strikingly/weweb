@@ -195,12 +195,12 @@ let header = {
     this.dom.headTitleI.style.display = state.loading ? 'inline-block' : 'none'
     this.dom.headBackI.style.borderLeft = `1px solid ${state.color}`
     this.dom.headBackI.style.borderBottom = `1px solid ${state.color}`
-    this.dom.headHome.style.display = state.back ? 'none' : 'flex'
+    this.dom.headHome.style.display = 'none'
     this.dom.headHomeI.className =
       state.color == 'white'
         ? 'weweb-head-home-icon white'
         : 'weweb-head-home-icon'
-    this.dom.headHomeI.style.display = state.back ? 'none' : 'flex'
+    this.dom.headHomeI.style.display = 'none'
     if (state.sendText) {
       this.dom.headOption.innerHTML = '<div>发送</div>'
       this.dom.headOption.querySelector('div').onclick = this.onSend.bind(this)

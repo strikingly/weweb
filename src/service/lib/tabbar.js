@@ -79,6 +79,7 @@ var Tabbar = {
     } else {
       this.scrollable.style.top = '42px'
     }
+    this.scrollable.style.top = '0px'
     if (this.tabbar) {
       this.tabbar.style.display = hidden ? 'none' : 'flex'
       ;[].forEach.call(this.tabbarItems, function (item, idx) {
