@@ -10,4 +10,4 @@ if [ "$1" != "dev" ]; then
 fi
 
 # use wechat `/bin/wcsc` to process *.wcss
-DFT_CMP_WCSS=true ./bin/weweb -b $app
+rm -rf ./wewebTmp && DFT_CMP_WCSS=true ./bin/weweb -n -b $app
