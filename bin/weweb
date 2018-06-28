@@ -291,7 +291,7 @@ function build () {
         if (arr[1]) {
           arr[1] = arr[1]
             .replace(/\/\*#\s*sourceMappingURL=.*\*\/$/, '')
-            .replace(/(position:\s*fixed\s*[^}]*[^w]top:)\s*0\s*;/g, '$142px;')
+            // .replace(/(position:\s*fixed\s*[^}]*[^w]top:)\s*0\s*;/g, '$142px;')
           if (
             has(tabBar, 'list') &&
             tabBar.list.findIndex(
@@ -340,11 +340,12 @@ function build () {
     // printRunTime()
     // console.log('b',program.babel)
   }
-  if (fs.existsSync(distPath)) {
-    exec(cmdRm + JSON.stringify(distPath)).then(execBuild)
-  } else {
-    execBuild()
-  }
+  // if (fs.existsSync(distPath)) {
+  //   exec(cmdRm + JSON.stringify(distPath)).then(execBuild)
+  // } else {
+  //   execBuild()
+  // }
+  execBuild()
 }
 
 process.on('uncaughtException', function (e) {

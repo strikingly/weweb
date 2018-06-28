@@ -438,6 +438,7 @@ var apiObj = {
       var data
       params.dataType = params.dataType || 'json'
       headers['content-type'] = headers['content-type'] || 'application/json'
+      headers['Wx-Request'] = 'from-h5'
       data = !params.data
         ? ''
         : typeof params.data !== 'string'
@@ -453,6 +454,7 @@ var apiObj = {
           : params.data
       ;(requestMethod == 'GET' || !__wxConfig__.requestProxy) &&
         (params.url = utils.addQueryStringToUrl(params.url, params.data))
+        params.url = wx._appendH5TeamMemberIdForRequest(params.url)
       bridge.invokeMethod(
         'request',
         {
@@ -476,6 +478,20 @@ var apiObj = {
         }
       )
     }
+  },
+  _appendH5TeamMemberIdForRequest(originalUrl){
+    if(!originalUrl){
+      return ''
+    }
+    let separator
+    if(originalUrl.indexOf('?') === -1){
+      separator = '?'
+    }else{
+      separator = '&'
+    }
+    let teamMemberId = localStorage.getItem('teamMemberId') || 'missing_team_member_id'
+    let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
+    return originalUrl.concat(h5TeamMemberIdParam)
   },
   connectSocket: function (params) {
     if (paramCheck('connectSocket', params, { url: '' })) {
@@ -857,19 +873,11 @@ var apiObj = {
     )
   },
   login: function (params) {
-    params.success({ code: '0016kgOv0Pe5Pi1DupRv0V8hOv06kgOX' })
-    // if (__wxConfig__ && __wxConfig__.weweb && __wxConfig__.weweb.loginUrl) {
-    //   // 引导到自定义的登录页面
-    //   if (__wxConfig__.weweb.loginUrl.indexOf('/') != 0) {
-    //     __wxConfig__.weweb.loginUrl = '/' + __wxConfig__.weweb.loginUrl
-    //   }
-    //   loginSourceUrl = __curPage__.url
-    //   apiObj.redirectTo({
-    //     url: __wxConfig__.weweb.loginUrl
-    //   })
-    // } else {
-    //   bridge.invokeMethod('login', params)
-    // }
+    let loginCode = localStorage.getItem('loginCode')
+    if(!loginCode){
+      console.error('SXL : should set `loginCode` in localStorage to mock login success ~')
+    }
+    params.success && params.success({ code: loginCode || '' })
   },
   loginSuccess: function () {
     const url =
@@ -888,19 +896,6 @@ var apiObj = {
   },
   checkSession: function (params) {
     params.success && params.success()
-    // refreshSessionTimeHander && clearTimeout(refreshSessionTimeHander)
-    // bridge.invokeMethod('refreshSession', params, {
-    //   beforeSuccess: function (res) {
-    //     refreshSessionTimeHander = setTimeout(function () {
-    //       bridge.invokeMethod('refreshSession')
-    //     }, 1e3 * res.expireIn)
-    //     delete res.err_code
-    //     delete res.expireIn
-    //   },
-    //   beforeAll: function (res) {
-    //     res.errMsg = res.errMsg.replace('refreshSession', 'checkSession')
-    //   }
-    // })
   },
   authorize: function (params) {
     bridge.invokeMethod('authorize', params)
