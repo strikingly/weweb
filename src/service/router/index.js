@@ -83,12 +83,18 @@ function getRoutes () {
   return result
 }
 
+window.onpopstate = function(event) {
+  // alert("location: " + document.location + ", state: " + JSON.stringify(event.state))
+  wx.navigateBack()
+};
+
 function onRoute () {
   // 改变地址栏
   let home = `${location.protocol}//${location.host}${location.pathname}`
-  if (typeof history.replaceState === 'function') {
-    history.replaceState({}, '', `${home}#!${curr.url}`)
+  if (typeof history.pushState === 'function') {
+    history.pushState({}, '', `${home}#!${curr.url}`)
   }
+
   Bus.emit('route', curr) // tabbar状态变化
   let arr = []
   let view = curr
