@@ -906,37 +906,30 @@ var apiObj = {
     params.success && params.success({ authSetting: { "scope.userInfo": true } })
   },
   getUserInfo: function (params) {
+    debugger
+    let teamMemberId = localStorage.getItem('teamMemberId')
+    let siteId = localStorage.getItem('siteId')
+    if(!teamMemberId || !siteId){
+      params.fail && params.fail()
+      return
+    }
+
+    let cachedUserInfo = localStorage.getItem(teamMemberId)
+    if(cachedUserInfo){
+      params && params.success(cachedUserInfo)
+      return
+    }
+
     wx.request({
-      url: 'https://www.baidu.com',
-      success: function (res) {
-        params.success && params.success({
-          userInfo: {
-            "gender": 1,
-            "openId": "oi5R_4gAzcPzRosp2_5RjaNlRH_M",
-            "city": "Shenyang",
-            "nickName": "꯭王꯭大꯭屁꯭帅꯭",
-            "province": "Liaoning",
-            "avatarUrl": "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJpUVEPHtFUjdUfcen9Qkympk6vTWIyamcibWic9rr68DVCMxAicNu2t1CiawmDu0pR2eMIVsn79EnVnw/132",
-            "country": "China",
-            "language": "zh_CN",
-            "id": 897901
-          }
-        })
-      },
-      fail: function (res) {
-        params.success && params.success({
-          userInfo: {
-            "gender": 1,
-            "openId": "oi5R_4gAzcPzRosp2_5RjaNlRH_M",
-            "city": "Shenyang",
-            "nickName": "꯭王꯭大꯭屁꯭帅꯭",
-            "province": "Liaoning",
-            "avatarUrl": "https://wx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTJpUVEPHtFUjdUfcen9Qkympk6vTWIyamcibWic9rr68DVCMxAicNu2t1CiawmDu0pR2eMIVsn79EnVnw/132",
-            "country": "China",
-            "language": "zh_CN",
-            "id": 897901
-          }
-        })
+      url: `https://www.sxl.cn/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
+      success: res => {
+        if(res.data && res.data.data && res.data.data.userInfo){
+          let userInfo = res.data.data.userInfo
+          localStorage.setItem(teamMemberId, userInfo)
+          params.success && params.success(userInfo)
+        }else{
+          params.fail && params.fail()
+        }
       }
     })
   },
@@ -1390,12 +1383,35 @@ var apiObj = {
     }
   },
   getExtConfigSync: function () {
-    if (!__wxConfig__.ext) return {}
-    try {
-      return JSON.parse(JSON.stringify(__wxConfig__.ext))
-    } catch (e) {
+    debugger
+    let siteId = localStorage.getItem('siteId')
+    if(!siteId){
       return {}
     }
+    let extConfigs = JSON.parse(localStorage.getItem('extConfigs'))
+    let ext = extConfigs[siteId]
+    if(ext){
+      wx.request({
+        url: `https://www.sxl.cn/r/v1/mini_program/apps/${siteid}`,
+        success: (res) => {
+          ext = res && res.data && res.data.extJson
+          extConfigs[siteId] = ext
+          localStorage.setItem('extConfigs', JSON.stringify(extConfigs))
+          return ext
+        },
+        fail: (err) => {
+          console.error("SXL : getExtConfigSync failed ")
+          console.error(err)
+          return {}
+        }
+      })
+    }
+    // if (!__wxConfig__.ext) return {}
+    // try {
+    //   return JSON.parse(JSON.stringify(__wxConfig__.ext))
+    // } catch (e) {
+    //   return {}
+    // }
   },
   chooseAddress: function (params) {
     bridge.invokeMethod('openAddress', params, {

@@ -51,7 +51,7 @@ let storage = {
     obj = str ? JSON.parse(str) : {}
     return {
       data: obj[key],
-      dataType: getType(key)
+      dataType: getType(key) || 'String'
     }
   },
   remove: function (key) {
