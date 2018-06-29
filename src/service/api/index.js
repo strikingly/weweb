@@ -10,6 +10,103 @@ import context from './context'
 import canvas from './canvas'
 import appContextSwitch from './appContextSwitch'
 
+const DEFAULT_EXTCONFIG = {
+  "ext" : {
+    "attr" : {
+      "contactItems" : [
+        {
+          "showInMp" : true,
+          "labelname" : "网站",
+          "content" : "www.sxl.cn",
+          "editing" : false,
+          "canEdit" : false
+        }
+      ],
+      "siteId" : "",
+      "showPhoneNumberInMp" : false,
+      "logoUrl" : "//nzr2ybsda.qnssl.com/images/198005/Fld-wF9CGP7yIX3LNabXHLYOLhSv.jpg?imageMogr2/strip/thumbnail/!300x300r/gravity/Center/crop/300x300/quality/90!/interlace/1/format/jpeg",
+      "companyName" : "",
+      "siteUrl" : "",
+      "layout" : [
+        "a",
+        "d"
+      ],
+      "name" : "上线了",
+      "phone" : "",
+      "businessHours" : "",
+      "location" : "",
+      "showAboutUsInMp" : true,
+      "coordinate" : {
+        "lat" : 31.30368,
+        "lng" : 121.5084
+      },
+      "sesame" : "be8ab0b0445187ba3f0934d25d5ad0f2",
+      "showBusinessHoursInMp" : true,
+      "description" : "",
+      "aboutDetail" : [
+        {
+          "type" : "BlockComponent",
+          "items" : null
+        }
+      ],
+      "showAddressInMP" : true
+    },
+    "style" : {
+      "mainBackground" : "#865cc2"
+    }
+  },
+  "window" : {
+    "navigationBarTitleText" : "上线了",
+    "navigationBarBackgroundColor" : "#865cc2",
+    "navigationBarTextStyle" : "white",
+    "backgroundColor" : "#ffffff",
+    "enablePullDownRefresh" : "false"
+  },
+  "tabBar" : {
+    "color" : "#ABABAB",
+    "selectedColor" : "#000000",
+    "backgroundColor" : "#ffffff",
+    "list" : [
+      {
+        "iconPath" : "assets/presentation/icons/iconset-home.png",
+        "selectedIconPath" : "assets/presentation/icons/iconset-home-selected-light.png",
+        "pagePath" : "pages/presentation/index/index",
+        "text" : "主页"
+      },
+      {
+        "iconPath" : "assets/presentation/icons/iconset-portfolio.png",
+        "selectedIconPath" : "assets/presentation/icons/iconset-portfolio-selected-light.png",
+        "pagePath" : "pages/presentation/portfolio/index/index",
+        "text" : "产品"
+      },
+      {
+        "iconPath" : "assets/presentation/icons/iconset-blog.png",
+        "selectedIconPath" : "assets/presentation/icons/iconset-blog-selected-light.png",
+        "pagePath" : "pages/presentationMixinBlog/postIndex/postIndex",
+        "text" : "有料"
+      },
+      {
+        "iconPath" : "assets/presentation/icons/iconset-about.png",
+        "selectedIconPath" : "assets/presentation/icons/iconset-about-selected-light.png",
+        "pagePath" : "pages/presentation/aboutus/aboutus",
+        "text" : "我们"
+      },
+      {
+        "iconPath" : "assets/presentation/icons/iconset-contact.png",
+        "selectedIconPath" : "assets/presentation/icons/iconset-contact-selected-light.png",
+        "pagePath" : "pages/presentation/contact/contact",
+        "text" : "沟通"
+      }
+    ]
+  },
+  "extEnable" : true,
+  "extAppid" : "",
+  "networkTimeout" : {
+    "request" : 10000,
+    "downloadFile" : 10000
+  }
+}
+
 function paramCheck (apiName, params, paramTpl) {
   var res = utils.paramCheck(params, paramTpl)
   return (
@@ -1332,7 +1429,7 @@ var apiObj = {
     setTimeout(function () {
       var res = {
         errMsg: 'getExtConfig: ok',
-        extConfig: (0, apiObj.getExtConfigSync)()
+        extConfig: apiObj.getExtConfigSync() || {}
       }
       typeof params.success === 'function' && params.success(res)
       typeof params.complete === 'function' && params.complete(res)
@@ -1383,35 +1480,31 @@ var apiObj = {
     }
   },
   getExtConfigSync: function () {
-    debugger
     let siteId = localStorage.getItem('siteId')
     if(!siteId){
       return {}
     }
-    let extConfigs = JSON.parse(localStorage.getItem('extConfigs'))
-    let ext = extConfigs[siteId]
-    if(ext){
-      wx.request({
-        url: `https://www.sxl.cn/r/v1/mini_program/apps/${siteid}`,
-        success: (res) => {
-          ext = res && res.data && res.data.extJson
-          extConfigs[siteId] = ext
-          localStorage.setItem('extConfigs', JSON.stringify(extConfigs))
-          return ext
-        },
-        fail: (err) => {
-          console.error("SXL : getExtConfigSync failed ")
-          console.error(err)
-          return {}
-        }
-      })
-    }
-    // if (!__wxConfig__.ext) return {}
-    // try {
-    //   return JSON.parse(JSON.stringify(__wxConfig__.ext))
-    // } catch (e) {
-    //   return {}
+    // let extConfigs = JSON.parse(localStorage.getItem('extConfigs') || '{}')
+    // let ext = extConfigs[siteId]
+    // if(!ext){
+    //   wx.request({
+    //     url: `https://www.uat.sxl.cn/r/v1/mini_program/apps/${siteId}`,
+    //     success: (res) => {
+    //       debugger
+    //       ext = res && res.data && res.data.extJson
+    //       extConfigs[siteId] = ext
+    //       localStorage.setItem('extConfigs', JSON.stringify(extConfigs))
+    //     },
+    //     fail: (err) => {
+    //       debugger
+    //       console.error("SXL : getExtConfigSync failed ")
+    //       console.error(err)
+    //     }
+    //   })
     // }
+    ext = DEFAULT_EXTCONFIG.ext
+    ext.attr.siteId = siteId
+    return ext
   },
   chooseAddress: function (params) {
     bridge.invokeMethod('openAddress', params, {
