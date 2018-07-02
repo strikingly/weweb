@@ -9,5 +9,13 @@ if [ "$1" != "dev" ]; then
   npm run dev:nowatch
 fi
 
-# use wechat `/bin/wcsc` to process *.wcss
+# In Dockerfile
+# 1. compile first
+# rm -rf ./wewebTmp && DFT_CMP_WCSS=true ./bin/weweb -n -b -t $app
+# 2. run server
+# ./bin/weweb -n -s $app
+
+# P.S.
+# DFT_CMP_WCSS : use wechat `/bin/wcsc` to process *.wcss
+
 rm -rf ./wewebTmp && DFT_CMP_WCSS=true ./bin/weweb -n -b $app
