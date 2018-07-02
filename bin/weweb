@@ -41,6 +41,7 @@ program
   .option('-o, --open', '使用 Chrome 打开小程序，仅对 Mac 有效')
   .option('-p, --port <n>', '指定服务端口，默认 3000', parseInt)
   .option('-t, --transform', '只转换小程序,不起web服务')
+  .option('-s, --server', '只启动 web 服务')
 
 program.parse(process.argv)
 
@@ -363,7 +364,13 @@ if (!program.nocheck) {
   notifier.check()
 }
 
-// 检查项目目录
+// 检查项目目录, must check before bootServer because of `process.chdir(folder)` !!!
 checkProject()
+
+if(program.server){
+  bootWebServer()
+  return
+}
+
 // 开始构建
 build()

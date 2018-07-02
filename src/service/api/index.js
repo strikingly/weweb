@@ -1502,7 +1502,7 @@ var apiObj = {
     //     }
     //   })
     // }
-    ext = DEFAULT_EXTCONFIG.ext
+    let ext = DEFAULT_EXTCONFIG.ext
     ext.attr.siteId = siteId
     return ext
   },
