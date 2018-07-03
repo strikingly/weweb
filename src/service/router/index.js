@@ -91,8 +91,8 @@ window.onpopstate = function(event) {
 function onRoute () {
   // 改变地址栏
   let home = `${location.protocol}//${location.host}${location.pathname}`
-  if (typeof history.pushState === 'function') {
-    history.pushState({}, '', `${home}#!${curr.url}`)
+  if (typeof history.replaceState === 'function') {
+    history.replaceState({}, '', `${home}#!${curr.url}`)
   }
 
   Bus.emit('route', curr) // tabbar状态变化
