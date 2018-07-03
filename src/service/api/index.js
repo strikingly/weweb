@@ -961,7 +961,7 @@ var apiObj = {
 
     let cachedUserInfo = localStorage.getItem(teamMemberId)
     if(cachedUserInfo){
-      params && params.success(cachedUserInfo)
+      params && params.success(JSON.parse(cachedUserInfo))
       return
     }
 
@@ -969,8 +969,8 @@ var apiObj = {
       url: `${apiHost}/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
       success: res => {
         if(res.data && res.data.data && res.data.data.userInfo){
-          let userInfo = res.data.data.userInfo
-          localStorage.setItem(teamMemberId, userInfo)
+          let userInfo = res.data.data
+          localStorage.setItem(teamMemberId, JSON.stringify(userInfo))
           params.success && params.success(userInfo)
         }else{
           params.fail && params.fail()
