@@ -922,7 +922,7 @@ var apiObj = {
     if(!loginCode){
       console.error('SXL : should set `loginCode` in localStorage to mock login success ~')
     }
-    params.success && params.success({ code: loginCode || '' })
+    params.success && params.success({ code: loginCode || '23333' })
   },
   loginSuccess: function () {
     const url =
