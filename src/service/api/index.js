@@ -10,6 +10,8 @@ import context from './context'
 import canvas from './canvas'
 import appContextSwitch from './appContextSwitch'
 
+
+const API_HOST = localStorage.getItem('apiHost') || 'https://www.preprod.sxl.cn'
 const DEFAULT_EXTCONFIG = {
   "attr" : {
     "contactItems" : [
@@ -534,7 +536,7 @@ var apiObj = {
     }else{
       separator = '&'
     }
-    let teamMemberId = localStorage.getItem('teamMemberId') || 'missing_team_member_id'
+    let teamMemberId = wx.getStorageSync('teamMemberId') || 'missing_team_member_id_from_H5'
     let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
     return originalUrl.concat(h5TeamMemberIdParam)
   },
@@ -951,9 +953,8 @@ var apiObj = {
     params.success && params.success({ authSetting: { "scope.userInfo": true } })
   },
   getUserInfo: function (params) {
-    let apiHost = localStorage.getItem('apiHost')
-    let teamMemberId = localStorage.getItem('teamMemberId')
-    let siteId = localStorage.getItem('siteId')
+    let teamMemberId = wx.getStorageSync('teamMemberId')
+    let siteId = wx.getStorageSync('siteId')
     if(!teamMemberId || !siteId){
       params.fail && params.fail()
       return
@@ -966,10 +967,15 @@ var apiObj = {
     }
 
     wx.request({
-      url: `${apiHost}/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
+      url: `${API_HOST}/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
       success: res => {
         if(res.data && res.data.data && res.data.data.userInfo){
           let userInfo = res.data.data
+          // convert photo array to avatarUrl
+          // BE api : photo: [] => wx.getUserInfo userInfo.avatarUrl
+          if(userInfo && userInfo.userInfo && userInfo.userInfo.photo && Array.isArray(userInfo.userInfo.photo) && userInfo.userInfo.photo.length > 0){
+            userInfo.userInfo.avatarUrl = userInfo.userInfo.photo[0]
+          }
           localStorage.setItem(teamMemberId, JSON.stringify(userInfo))
           params.success && params.success(userInfo)
         }else{
@@ -1057,11 +1063,14 @@ var apiObj = {
   chooseContact: function (params) {
     bridge.invokeMethod('chooseContact', params)
   },
-  makePhoneCall: function () {
-    var params =
-      arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}
-    paramCheck('makePhoneCall', params, { phoneNumber: '' }) &&
-      bridge.invokeMethod('makePhoneCall', params)
+  makePhoneCall: function (params) {
+    if(params.phoneNumber){
+      window.location.href = `tel:${params.phoneNumber}`
+      params.success && params.success()
+    }else{
+      param.fail && param.fail()
+    }
+    param.complete && param.complete()
   },
   onAppRoute: function (params, t) {
     appRouteCallbacks.push(params)
@@ -1428,8 +1437,7 @@ var apiObj = {
     }
   },
   getExtConfigSync: function () {
-    let siteId = localStorage.getItem('siteId')
-    let apiHost = localStorage.getItem('apiHost')
+    let siteId = wx.getStorageSync('siteId')
 
     if(!siteId){
       return {}
@@ -1438,7 +1446,7 @@ var apiObj = {
     // let ext = extConfigs[siteId]
     // if(!ext){
     //   wx.request({
-    //     url: `${apiHost}/r/v1/mini_program/apps/${siteId}`,
+    //     url: `${API_HOST}/r/v1/mini_program/apps/${siteId}`,
     //     success: (res) => {
     //       debugger
     //       ext = res && res.data && res.data.extJson
