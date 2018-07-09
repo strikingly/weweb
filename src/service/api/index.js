@@ -960,7 +960,7 @@ var apiObj = {
       return
     }
 
-    let cachedUserInfo = localStorage.getItem(teamMemberId)
+    let cachedUserInfo = sessionStorage.getItem(teamMemberId)
     if(cachedUserInfo){
       params && params.success(JSON.parse(cachedUserInfo))
       return
@@ -976,7 +976,7 @@ var apiObj = {
           if(userInfo && userInfo.userInfo && userInfo.userInfo.photo && Array.isArray(userInfo.userInfo.photo) && userInfo.userInfo.photo.length > 0){
             userInfo.userInfo.avatarUrl = userInfo.userInfo.photo[0]
           }
-          localStorage.setItem(teamMemberId, JSON.stringify(userInfo))
+          sessionStorage.setItem(teamMemberId, JSON.stringify(userInfo))
           params.success && params.success(userInfo)
         }else{
           params.fail && params.fail()
