@@ -1870,5 +1870,10 @@ bridge.onMethod('onMapClick', function () {
 
 utils.copyObj(wx, apiObj)
 wx.isInWeb = true
+// window and document will be `undefined`
+// in this way, we can ref window and document :tada ~
+wx.window = window
+wx.document = window.document
+
 window.wx = wx
 export default wx
