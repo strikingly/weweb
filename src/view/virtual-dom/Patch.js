@@ -1,5 +1,16 @@
 import DomIndex from './DomIndex'
 
+
+const blackList = ["info-content", "analytics"]
+
+const rejectDirtyPatch = (vpatch) => {
+  if(vpatch && vpatch.patch && vpatch.patch.props && vpatch.patch.props.class){
+    let className = vpatch.patch.props.class
+    let isDirty = blackList.some(b => className.includes(b))
+    return isDirty
+  }
+}
+
 class Patch {
   constructor (oldTree, patches) {
     this.oldTree = oldTree
@@ -20,6 +31,10 @@ class Patch {
       if (dom) {
         let patches = that.patches[patchIdx]
         patches.forEach(function (vpatch) {
+          if(rejectDirtyPatch(vpatch)){
+            return
+          }
+
           vpatch.apply(dom)
         })
       }
