@@ -1068,9 +1068,9 @@ var apiObj = {
       window.location.href = `tel:${params.phoneNumber}`
       params.success && params.success()
     }else{
-      param.fail && param.fail()
+      params.fail && params.fail()
     }
-    param.complete && param.complete()
+    params.complete && params.complete()
   },
   onAppRoute: function (params, t) {
     appRouteCallbacks.push(params)
