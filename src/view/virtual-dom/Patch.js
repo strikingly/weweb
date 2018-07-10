@@ -20,9 +20,7 @@ class Patch {
       if (dom) {
         let patches = that.patches[patchIdx]
         patches.forEach(function (vpatch) {
-          if(vpatch.vNode){
-            vpatch.apply(dom)
-          }
+          vpatch.apply(dom)
         })
       }
     })
