@@ -11,7 +11,7 @@ import canvas from './canvas'
 import appContextSwitch from './appContextSwitch'
 
 
-const API_HOST = localStorage.getItem('apiHost') || 'https://www.preprod.sxl.cn'
+const API_HOST = localStorage.getItem('apiHost') || 'https://api.sxl.cn'
 const DEFAULT_EXTCONFIG = {
   "attr" : {
     "contactItems" : [
