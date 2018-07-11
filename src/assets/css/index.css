@@ -121,6 +121,10 @@ and (-webkit-device-pixel-ratio : 3) {
   font-size: 18px;
 }
 
+.input-area wx-input input {
+  height: 23px !important;
+  line-height: 23px !important;
+}
 
 html,
 body {
