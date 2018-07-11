@@ -87,9 +87,43 @@ video {
   margin: 0;
   padding: 0;
   border: 0;
-  font-size: 100%;
+  font-size:14px;
   vertical-align: baseline;
   text-decoration: none;
+}
+
+/* iPhone 5 & 5S in portrait & landscape */
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 568px) {
+  font-size: 15px;
+}
+
+/* iPhone 6, 7, & 8 in portrait & landscape */
+@media only screen
+and (min-device-width : 375px)
+and (max-device-width : 667px) {
+  font-size: 17px;
+}
+
+/* iPhone 6, 7, & 8 Plus in portrait & landscape */
+@media only screen
+and (min-device-width : 414px)
+and (max-device-width : 736px) {
+  font-size: 18px;
+}
+
+/* iPhone X in portrait & landscape */
+@media only screen
+and (min-device-width : 375px)
+and (max-device-width : 812px)
+and (-webkit-device-pixel-ratio : 3) {
+  font-size: 18px;
+}
+
+.input-area wx-input input {
+  height: 23px !important;
+  line-height: 23px !important;
 }
 
 html,
