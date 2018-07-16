@@ -11,7 +11,6 @@ import canvas from './canvas'
 import appContextSwitch from './appContextSwitch'
 
 
-const API_HOST = localStorage.getItem('apiHost') || 'https://api.sxl.cn'
 const DEFAULT_EXTCONFIG = {
   "attr" : {
     "contactItems" : [
@@ -967,7 +966,7 @@ var apiObj = {
     }
 
     wx.request({
-      url: `${API_HOST}/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
+      url: `${wx.window.HERA_API_HOST}/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
       success: res => {
         if(res.data && res.data.data && res.data.data.userInfo){
           let userInfo = res.data.data
@@ -1446,7 +1445,7 @@ var apiObj = {
     // let ext = extConfigs[siteId]
     // if(!ext){
     //   wx.request({
-    //     url: `${API_HOST}/r/v1/mini_program/apps/${siteId}`,
+    //     url: `${wx.window.HERA_API_HOST}/r/v1/mini_program/apps/${siteId}`,
     //     success: (res) => {
     //       debugger
     //       ext = res && res.data && res.data.extJson
