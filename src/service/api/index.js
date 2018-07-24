@@ -484,7 +484,7 @@ var apiObj = {
       var data
       params.dataType = params.dataType || 'json'
       headers['content-type'] = headers['content-type'] || 'application/json'
-      headers['Wx-Request'] = 'from-h5'
+      headers['Wx-Request'] = 'from-h5' //H5 请求带着这个 header
       data = !params.data
         ? ''
         : typeof params.data !== 'string'
@@ -526,6 +526,7 @@ var apiObj = {
     }
   },
   _appendH5TeamMemberIdForRequest(originalUrl){
+    // 所有 H5 请求都带着 h5TeamMemberId 这个参数 ~
     if(!originalUrl){
       return ''
     }
@@ -919,11 +920,14 @@ var apiObj = {
     )
   },
   login: function (params) {
+    // wx.login() polyfill
+    // H5 请求使用 teamMemberId 鉴权, code 没啥用
+    // 所以后端 Api 要支持 code 和 teamMemberId 的鉴权方式
     let loginCode = localStorage.getItem('loginCode')
     if(!loginCode){
       console.error('SXL : should set `loginCode` in localStorage to mock login success ~')
     }
-    params.success && params.success({ code: loginCode || '23333' })
+    params.success && params.success({ code: loginCode || 'magic 23333 from H5' })
   },
   loginSuccess: function () {
     const url =
@@ -949,9 +953,11 @@ var apiObj = {
   showShareMenu: function (params) {
   },
   getSetting: function (params) {
+    //polyfill, H5 没权限问题...用户信息是从下面的后端 API 拿的
     params.success && params.success({ authSetting: { "scope.userInfo": true } })
   },
   getUserInfo: function (params) {
+    // polyfill H5 拿不到 userInfo, 后端新添加的接口, 根据 teamMemberId 获取 userInfo
     let teamMemberId = wx.getStorageSync('teamMemberId')
     let siteId = wx.getStorageSync('siteId')
     if(!teamMemberId || !siteId){
@@ -1064,6 +1070,7 @@ var apiObj = {
   },
   makePhoneCall: function (params) {
     if(params.phoneNumber){
+      // H5 也能调用原生的拨号
       window.location.href = `tel:${params.phoneNumber}`
       params.success && params.success()
     }else{
@@ -1436,6 +1443,10 @@ var apiObj = {
     }
   },
   getExtConfigSync: function () {
+    // polyfill wx.getExtConfigSync()
+    // 根据 siteId 获取 extConfig
+    // `DEFAULT_EXTCONFIG` 写死了大部分配置
+    // 理论上应该发网络请求去获取对应 siteId 的 extConfig
     let siteId = wx.getStorageSync('siteId')
 
     if(!siteId){
@@ -1868,7 +1879,10 @@ bridge.onMethod('onMapClick', function () {
 })
 
 utils.copyObj(wx, apiObj)
+
+// 小程序可以使用 `wx.isInWeb` 判断是否运行在 web 环境中
 wx.isInWeb = true
+
 // window and document will be `undefined`
 // in this way, we can ref window and document :tada ~
 wx.window = window
