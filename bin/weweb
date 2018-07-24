@@ -292,7 +292,7 @@ function build () {
         if (arr[1]) {
           arr[1] = arr[1]
             .replace(/\/\*#\s*sourceMappingURL=.*\*\/$/, '')
-            // .replace(/(position:\s*fixed\s*[^}]*[^w]top:)\s*0\s*;/g, '$142px;')
+            // .replace(/(position:\s*fixed\s*[^}]*[^w]top:)\s*0\s*;/g, '$142px;') //去掉这个 : 给 position:fixed 强行加偏移
           if (
             has(tabBar, 'list') &&
             tabBar.list.findIndex(
@@ -338,14 +338,7 @@ function build () {
       util.rmEmptyDirsSync(distPath)
     }
 
-    // printRunTime()
-    // console.log('b',program.babel)
   }
-  // if (fs.existsSync(distPath)) {
-  //   exec(cmdRm + JSON.stringify(distPath)).then(execBuild)
-  // } else {
-  //   execBuild()
-  // }
   execBuild()
 }
 
@@ -367,7 +360,7 @@ if (!program.nocheck) {
 // 检查项目目录, must check before bootServer because of `process.chdir(folder)` !!!
 checkProject()
 
-if(program.server){
+if(program.server){ // -s 指启动 server
   bootWebServer()
   return
 }

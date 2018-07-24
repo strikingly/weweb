@@ -195,7 +195,7 @@ let header = {
     this.dom.headTitleI.style.display = state.loading ? 'inline-block' : 'none'
     this.dom.headBackI.style.borderLeft = `1px solid ${state.color}`
     this.dom.headBackI.style.borderBottom = `1px solid ${state.color}`
-    this.dom.headHome.style.display = 'none'
+    this.dom.headHome.style.display = 'none' //隐藏导航头部, 在微信企业版底部有返回
     this.dom.headHomeI.className =
       state.color == 'white'
         ? 'weweb-head-home-icon white'
