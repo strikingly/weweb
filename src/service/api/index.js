@@ -184,6 +184,14 @@ var apiObj = {
   onPullDownRefresh: function (e) {
     console.log('onPullDownRefresh has been removed from api list')
   },
+  getUpdateManager: function(e){
+    var obj = {}
+    obj.onCheckForUpdate = function(){}
+    obj.onUpdateReady	= function(){}
+    obj.onUpdateFailed	= function(){}
+    obj.applyUpdate	= function(){}
+    return obj
+  },
   setNavigationBarColor: function () {
     var params =
       arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}
