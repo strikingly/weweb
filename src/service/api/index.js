@@ -544,9 +544,13 @@ var apiObj = {
     }else{
       separator = '&'
     }
-    let teamMemberId = wx.getStorageSync('teamMemberId') || 'missing_team_member_id_from_H5'
-    let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
-    return originalUrl.concat(h5TeamMemberIdParam)
+    let teamMemberId = wx.getStorageSync('teamMemberId')
+    if(teamMemberId){
+      let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
+      return originalUrl.concat(h5TeamMemberIdParam)
+    }else{
+      return originalUrl
+    }
   },
   connectSocket: function (params) {
     if (paramCheck('connectSocket', params, { url: '' })) {
