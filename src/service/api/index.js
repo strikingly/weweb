@@ -546,7 +546,7 @@ var apiObj = {
     }
     let teamMemberId = wx.getStorageSync('teamMemberId')
     let isInPublicAccount = originalUrl.indexOf('officialaccount') !== -1 // 针对这个请求 : /s/work_wechat/st_analytics/apps_list?code=${code}, H5不再微信公众号里面, 才拼接 `h5TeamMemberId` 参数
-    if(teamMemberId && !isInPublicAccount){
+    if(teamMemberId && isInPublicAccount){
       let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
       return originalUrl.concat(h5TeamMemberIdParam)
     }else{
