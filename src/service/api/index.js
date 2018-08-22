@@ -545,8 +545,11 @@ var apiObj = {
       separator = '&'
     }
     let teamMemberId = wx.getStorageSync('teamMemberId')
-    let isInPublicAccount = originalUrl.indexOf('officialaccount') !== -1 // 针对这个请求 : /s/work_wechat/st_analytics/apps_list?code=${code}, H5不再微信公众号里面, 才拼接 `h5TeamMemberId` 参数
-    if(teamMemberId && isInPublicAccount){
+    const blackList = ['st_analytics/apps_list'] // 针对这个请求 : /s/work_wechat/st_analytics/apps_list, H5不再微信公众号里面, 才拼接 `h5TeamMemberId` 参数
+    const isBlackRequet = blackList.some(blackUrl => {
+      return originalUrl.indexOf(blackList) !== -1
+    })
+    if(teamMemberId && !isBlackRequet){
       let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
       return originalUrl.concat(h5TeamMemberIdParam)
     }else{
