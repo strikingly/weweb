@@ -86,7 +86,7 @@ export function updateWebView (id, src) {
 }
 
 export function parsePath (path) {
-  let parts = path.split(/\?/)
+  let parts = decodeURIComponent(path).split(/\?/)
   return {
     path: parts[0],
     query: qs.parse(parts[1])
