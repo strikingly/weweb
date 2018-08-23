@@ -7,6 +7,22 @@
   <meta name="viewport" content="width=device-width, height=device-height,user-scalable=no, initial-scale=1.0" />
   <!-- <script src="/script/recorder.js"></script> -->
 </weweb-head>
+<head>
+  <script>
+    window.WeixinJSBridge = {magicPlaceHolder: true} // weweb 环境和微信浏览器环境都有 `WeixinJSBridge` 对象, 先设置好, 阻止微信赋值, 微信会判断 if(window.WeixinJSBridge) return;
+    var __wxConfig__ = {{! _.config}}
+    var __root__ = '{{= _.root}}'
+  </script>
+  <script>
+    var __wxRoute
+    var __wxRouteBegin
+    global = {}
+    window.reRender = {}
+  </script>
+  <script src="https://cdn.bootcss.com/babel-polyfill/7.0.0-beta.49/polyfill.min.js"></script>
+  <script src="script/weweb.js?v={{= _.version}}" type="text/javascript"></script>
+  <script src="script/app-service.js?v={{= _.version}}"></script>
+</head>
 <body>
   <div class="weweb-head">
     <div class="jshook-ws-weweb-head" style="display: none">
@@ -47,18 +63,6 @@
     </div>
     {{/}}
   </div>
-  <script>
-    var __wxConfig__ = {{! _.config}}
-    var __root__ = '{{= _.root}}'
-  </script>
-  <script>
-    var __wxRoute
-    var __wxRouteBegin
-    global = {}
-  </script>
-  <script src="https://cdn.bootcss.com/babel-polyfill/7.0.0-beta.49/polyfill.min.js"></script>
-  <script src="script/weweb.js?v={{= _.version}}" type="text/javascript"></script>
-  <script src="script/app-service.js?v={{= _.version}}"></script>
   <script>
     ServiceJSBridge.doCommand({
       sdkName: 'onLaunch'

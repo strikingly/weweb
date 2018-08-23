@@ -47,7 +47,7 @@ function on (eventName, handler) {
   defaultEventHandlers[eventName] = handler
   send(eventName, {}, true)
 }
-window.WeixinJSBridge = {
+var WeixinJSBridge = {
   pull,
   invoke: invoke,
   on: on,
@@ -76,6 +76,14 @@ window.WeixinJSBridge = {
         : defaultEventHandlers[eventName]),
     typeof handler === 'function' && handler(data)
   }
+}
+
+if(!window.WeixinJSBridge || (window.WeixinJSBridge && window.WeixinJSBridge.magicPlaceHolder)){
+  console.log('ST: WeixinJSBridge init')
+  window.WeixinJSBridge = WeixinJSBridge
+} else {
+  console.log('ST: WeixinJSBridge has existed')
+  Object.assign(window.WeixinJSBridge, WeixinJSBridge)
 }
 // pull.register(function () {
 //   ServiceJSBridge.subscribeHandler('onPullDownRefresh', {}, curViewId())
