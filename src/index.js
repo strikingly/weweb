@@ -1,4 +1,3 @@
-window.reRender = {};
 import './assets/css/index.css'
 
 import './common/globalDefined'
