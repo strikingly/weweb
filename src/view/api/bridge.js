@@ -78,8 +78,12 @@ var WeixinJSBridge = {
   }
 }
 
-if(!window.WeixinJSBridge){
+if(!window.WeixinJSBridge || (window.WeixinJSBridge && window.WeixinJSBridge.magicPlaceHolder)){
+  console.log('ST: WeixinJSBridge init')
   window.WeixinJSBridge = WeixinJSBridge
+} else {
+  console.log('ST: WeixinJSBridge has existed')
+  Object.assign(window.WeixinJSBridge, WeixinJSBridge)
 }
 // pull.register(function () {
 //   ServiceJSBridge.subscribeHandler('onPullDownRefresh', {}, curViewId())
