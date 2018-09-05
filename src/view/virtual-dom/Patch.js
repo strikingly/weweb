@@ -4,7 +4,7 @@ import DomIndex from './DomIndex'
 // hack here !!!
 // 从某些页面返回的时候, 上一个页面会重复渲染一坨一样的元素
 // 原因是 Diff 出多一坨 VNode, 很难排查, 所以加了个黑名单, 防止元素重复...
-const blackList = ["info-content", "analytics"]
+const blackList = ["info-content", "analytics", 'sendBtn', 'time-count']
 
 const rejectDirtyPatch = (vpatch) => {
   if(vpatch && vpatch.patch && vpatch.patch.props && vpatch.patch.props.class){
