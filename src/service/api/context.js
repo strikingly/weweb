@@ -46,8 +46,8 @@ function parseColorValue (colorStr) {
     return [red, green, blue, 255]
   }
 
-  console.group('非法颜色: ' + colorStr)
-  console.error('不支持颜色：' + colorStr)
+  // console.group('非法颜色: ' + colorStr)
+  // console.error('不支持颜色：' + colorStr)
   console.groupEnd()
 }
 

@@ -1464,10 +1464,6 @@ var apiObj = {
     // `DEFAULT_EXTCONFIG` 写死了大部分配置
     // 理论上应该发网络请求去获取对应 siteId 的 extConfig
     let siteId = wx.getStorageSync('siteId')
-
-    if(!siteId){
-      return {}
-    }
     // let extConfigs = JSON.parse(localStorage.getItem('extConfigs') || '{}')
     // let ext = extConfigs[siteId]
     // if(!ext){
