@@ -84,7 +84,7 @@ function getRoutes () {
 }
 
 // disable Browser back and call wx.navigateBack()
-history.pushState(null, null, document.URL)
+// history.pushState(null, null, document.URL)
 window.addEventListener('popstate', function () {
 
   // call firstTimeRender when create new same Page
