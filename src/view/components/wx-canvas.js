@@ -44,6 +44,10 @@ const LONG_PRESS_DISTANCE_THRESHOLD = 5
 //   return res
 // }
 const resolveColor = function (color) {
+  if(!color){
+    return 'rgba(0, 0, 0, 0)'
+  }
+
   var arr = color.slice(0)
   arr[3] = arr[3] / 255
   return 'rgba(' + arr.join(',') + ')'

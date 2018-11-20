@@ -8,6 +8,7 @@ const Bus = util.getBus()
 
 let curr = null
 let views = {}
+window.__views = views
 let tabViews = {}
 if (!window.__wxConfig) {
   Object.defineProperty(window, '__wxConfig', {
@@ -82,12 +83,24 @@ function getRoutes () {
   return result
 }
 
+// disable Browser back and call wx.navigateBack()
+history.pushState(null, null, document.URL)
+window.addEventListener('popstate', function () {
+
+  // call firstTimeRender when create new same Page
+  // see : weweb/src/view/virtual-dom/index.js func : renderOnDataChange
+  window.reRender[window.__curPage__.path] = false
+  wx.navigateBack()
+  history.pushState(null, null, document.URL)
+})
+
 function onRoute () {
   // 改变地址栏
   let home = `${location.protocol}//${location.host}${location.pathname}`
   if (typeof history.replaceState === 'function') {
     history.replaceState({}, '', `${home}#!${curr.url}`)
   }
+
   Bus.emit('route', curr) // tabbar状态变化
   let arr = []
   let view = curr

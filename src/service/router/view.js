@@ -32,7 +32,7 @@ export default class View extends Emitter {
         })
       }
     } else {
-      window.reRender = 0
+      window.reRender[path] = 0
       window.__pageFrameStartTime__ = Date.now()
       this.el = this.createPage(id, false, root)
       this.loadWxml()
@@ -123,6 +123,12 @@ export default class View extends Emitter {
         command = data.command,
         ext = data.ext
 
+      if (data.ext && data.ext.path) {
+        if (msg.data && msg.data.options) {
+          msg.data.options['ext-path'] = data.ext.path
+        }
+      }
+
       if (command === 'MSG_FROM_APPSERVICE') {
         WeixinJSBridge.subscribeHandler(msg.eventName, msg.data)
       } else if (
@@ -147,8 +153,11 @@ export default class View extends Emitter {
         self.inlineCss(cssBody, p)
       })
   }
-  resizeWxss () {}
-  createPage (id, hidden, parent = document.body) {
+  resizeWxss() { }
+  createPage(id, hidden, parent) {
+    if (!parent) {
+      parent = document.body
+    }
     let el = document.createElement('div')
     el.setAttribute('id', 'weweb-view-' + id)
     el.setAttribute('view-id', id)
@@ -221,7 +230,7 @@ export default class View extends Emitter {
         }
 
         function componentLoaded () {
-          window.reRender = 0 // 重置
+          // window.reRender = 0 // 重置
           Bus.emit('ready', self.id)
           Pull.register(function () {
             ServiceJSBridge.subscribeHandler('onPullDownRefresh', {}, self.id)

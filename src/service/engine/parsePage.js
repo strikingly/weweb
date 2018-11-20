@@ -25,6 +25,32 @@ var isBaseAttr = function (name) {
   return baseAttrs.indexOf(name) !== -1
 }
 
+function parseDotNotation(str, val, obj) {
+    var currentObj = obj,
+        keys = str.split("."),
+        i, l = Math.max(1, keys.length - 1),
+        key;
+
+    for (i = 0; i < l; ++i) {
+        key = keys[i];
+        currentObj[key] = currentObj[key] || {};
+        currentObj = currentObj[key];
+    }
+
+    currentObj[keys[i]] = val;
+    delete obj[str];
+}
+
+Object.expand = function (obj) {
+    for (var key in obj) {
+        if (key.indexOf(".") !== -1)
+        {
+            parseDotNotation(key, obj[key], obj);
+        }
+    }
+    return obj;
+};
+
 class PageParser {
   constructor () {
     var pageObj =
@@ -149,6 +175,7 @@ class PageParser {
     )
   }
 
+
   setData (dataObj, callback) {
     try {
       var type = utils.getDataType(dataObj)
@@ -158,6 +185,7 @@ class PageParser {
           'setData accepts an Object rather than some ' + type
         )
       for (var key in dataObj) {
+
         var curValue = getObjectByPath(this.data, key),
           curObj = curValue.obj,
           curKey = curValue.key
@@ -171,10 +199,13 @@ class PageParser {
       if (callback) {
         document.addEventListener('pageReRender', execCallback)
       }
-      if (window.reRender) {
+      if (window.reRender[this.route]) {
         WeixinJSBridge.subscribeHandler('custom_event_appDataChange', {
           data: {
             data: dataObj
+          },
+          options: {
+            'ext-path': this.route
           }
         })
       } else {
@@ -189,6 +220,9 @@ class PageParser {
           [this.__wxWebviewId__]
         )
       }
+
+      // sync the data to the page
+      this.data = Object.expand(Object.assign({}, this.data, dataObj))
     } catch (e) {
       Reporter.errorReport({
         key: 'jsEnginScriptError',

@@ -41,6 +41,7 @@ program
   .option('-o, --open', '使用 Chrome 打开小程序，仅对 Mac 有效')
   .option('-p, --port <n>', '指定服务端口，默认 3000', parseInt)
   .option('-t, --transform', '只转换小程序,不起web服务')
+  .option('-s, --server', '只启动 web 服务')
 
 program.parse(process.argv)
 
@@ -291,7 +292,7 @@ function build () {
         if (arr[1]) {
           arr[1] = arr[1]
             .replace(/\/\*#\s*sourceMappingURL=.*\*\/$/, '')
-            .replace(/(position:\s*fixed\s*[^}]*[^w]top:)\s*0\s*;/g, '$142px;')
+            // .replace(/(position:\s*fixed\s*[^}]*[^w]top:)\s*0\s*;/g, '$142px;') //去掉这个 : 给 position:fixed 强行加偏移
           if (
             has(tabBar, 'list') &&
             tabBar.list.findIndex(
@@ -337,14 +338,8 @@ function build () {
       util.rmEmptyDirsSync(distPath)
     }
 
-    // printRunTime()
-    // console.log('b',program.babel)
   }
-  if (fs.existsSync(distPath)) {
-    exec(cmdRm + JSON.stringify(distPath)).then(execBuild)
-  } else {
-    execBuild()
-  }
+  execBuild()
 }
 
 process.on('uncaughtException', function (e) {
@@ -362,7 +357,13 @@ if (!program.nocheck) {
   notifier.check()
 }
 
-// 检查项目目录
+// 检查项目目录, must check before bootServer because of `process.chdir(folder)` !!!
 checkProject()
+
+if(program.server){ // -s 指启动 server
+  bootWebServer()
+  return
+}
+
 // 开始构建
 build()

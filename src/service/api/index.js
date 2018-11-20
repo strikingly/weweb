@@ -10,6 +10,52 @@ import context from './context'
 import canvas from './canvas'
 import appContextSwitch from './appContextSwitch'
 
+
+const DEFAULT_EXTCONFIG = {
+  "attr" : {
+    "contactItems" : [
+      {
+        "showInMp" : true,
+        "labelname" : "网站",
+        "content" : "www.sxl.cn",
+        "editing" : false,
+        "canEdit" : false
+      }
+    ],
+    "siteId" : "",
+    "showPhoneNumberInMp" : false,
+    "logoUrl" : "//nzr2ybsda.qnssl.com/images/198005/Fld-wF9CGP7yIX3LNabXHLYOLhSv.jpg?imageMogr2/strip/thumbnail/!300x300r/gravity/Center/crop/300x300/quality/90!/interlace/1/format/jpeg",
+    "companyName" : "",
+    "siteUrl" : "",
+    "layout" : [
+      "a",
+      "d"
+    ],
+    "name" : "上线了",
+    "phone" : "",
+    "businessHours" : "",
+    "location" : "",
+    "showAboutUsInMp" : true,
+    "coordinate" : {
+      "lat" : 31.30368,
+      "lng" : 121.5084
+    },
+    "sesame" : "be8ab0b0445187ba3f0934d25d5ad0f2",
+    "showBusinessHoursInMp" : true,
+    "description" : "",
+    "aboutDetail" : [
+      {
+        "type" : "BlockComponent",
+        "items" : null
+      }
+    ],
+    "showAddressInMP" : true
+  },
+  "style" : {
+    "mainBackground" : "#865cc2"
+  }
+}
+
 function paramCheck (apiName, params, paramTpl) {
   var res = utils.paramCheck(params, paramTpl)
   return (
@@ -137,6 +183,14 @@ var apiObj = {
   reportKeyValue: function (e, t) {},
   onPullDownRefresh: function (e) {
     console.log('onPullDownRefresh has been removed from api list')
+  },
+  getUpdateManager: function(e){
+    var obj = {}
+    obj.onCheckForUpdate = function(){}
+    obj.onUpdateReady	= function(){}
+    obj.onUpdateFailed	= function(){}
+    obj.applyUpdate	= function(){}
+    return obj
   },
   setNavigationBarColor: function () {
     var params =
@@ -438,6 +492,7 @@ var apiObj = {
       var data
       params.dataType = params.dataType || 'json'
       headers['content-type'] = headers['content-type'] || 'application/json'
+      headers['Wx-Request'] = 'from-h5' //H5 请求带着这个 header
       data = !params.data
         ? ''
         : typeof params.data !== 'string'
@@ -453,6 +508,7 @@ var apiObj = {
           : params.data
       ;(requestMethod == 'GET' || !__wxConfig__.requestProxy) &&
         (params.url = utils.addQueryStringToUrl(params.url, params.data))
+        params.url = wx._appendH5TeamMemberIdForRequest(params.url)
       bridge.invokeMethod(
         'request',
         {
@@ -475,6 +531,29 @@ var apiObj = {
           }
         }
       )
+    }
+  },
+  _appendH5TeamMemberIdForRequest(originalUrl){
+    // 所有 H5 请求都带着 h5TeamMemberId 这个参数 ~
+    if(!originalUrl){
+      return ''
+    }
+    let separator
+    if(originalUrl.indexOf('?') === -1){
+      separator = '?'
+    }else{
+      separator = '&'
+    }
+    let teamMemberId = wx.getStorageSync('teamMemberId')
+    const blackList = ['st_analytics/apps_list'] // 针对这个请求 : /s/work_wechat/st_analytics/apps_list, H5不再微信公众号里面, 才拼接 `h5TeamMemberId` 参数
+    const isBlackRequet = blackList.some(blackUrl => {
+      return originalUrl.indexOf(blackList) !== -1
+    })
+    if(teamMemberId && !isBlackRequet){
+      let h5TeamMemberIdParam = `${separator}h5TeamMemberId=${teamMemberId}`
+      return originalUrl.concat(h5TeamMemberIdParam)
+    }else{
+      return originalUrl
     }
   },
   connectSocket: function (params) {
@@ -857,18 +936,14 @@ var apiObj = {
     )
   },
   login: function (params) {
-    if (__wxConfig__ && __wxConfig__.weweb && __wxConfig__.weweb.loginUrl) {
-      // 引导到自定义的登录页面
-      if (__wxConfig__.weweb.loginUrl.indexOf('/') != 0) {
-        __wxConfig__.weweb.loginUrl = '/' + __wxConfig__.weweb.loginUrl
-      }
-      loginSourceUrl = __curPage__.url
-      apiObj.redirectTo({
-        url: __wxConfig__.weweb.loginUrl
-      })
-    } else {
-      bridge.invokeMethod('login', params)
+    // wx.login() polyfill
+    // H5 请求使用 teamMemberId 鉴权, code 没啥用
+    // 所以后端 Api 要支持 code 和 teamMemberId 的鉴权方式
+    let loginCode = localStorage.getItem('loginCode')
+    if(!loginCode){
+      console.error('SXL : should set `loginCode` in localStorage to mock login success ~')
     }
+    params.success && params.success({ code: loginCode || 'magic 23333 from H5' })
   },
   loginSuccess: function () {
     const url =
@@ -886,59 +961,49 @@ var apiObj = {
     bridge.invokeMethod('checkLogin', params)
   },
   checkSession: function (params) {
-    refreshSessionTimeHander && clearTimeout(refreshSessionTimeHander)
-    bridge.invokeMethod('refreshSession', params, {
-      beforeSuccess: function (res) {
-        refreshSessionTimeHander = setTimeout(function () {
-          bridge.invokeMethod('refreshSession')
-        }, 1e3 * res.expireIn)
-        delete res.err_code
-        delete res.expireIn
-      },
-      beforeAll: function (res) {
-        res.errMsg = res.errMsg.replace('refreshSession', 'checkSession')
-      }
-    })
+    params.success && params.success()
   },
   authorize: function (params) {
     bridge.invokeMethod('authorize', params)
   },
+  showShareMenu: function (params) {
+  },
+  getSetting: function (params) {
+    //polyfill, H5 没权限问题...用户信息是从下面的后端 API 拿的
+    params.success && params.success({ authSetting: { "scope.userInfo": true } })
+  },
   getUserInfo: function (params) {
-    bridge.invokeMethod(
-      'operateWXData',
-      utils.assign(
-        {
-          data: {
-            api_name: 'webapi_getuserinfo',
-            data: params.data || {}
+    // polyfill H5 拿不到 userInfo, 后端新添加的接口, 根据 teamMemberId 获取 userInfo
+    let teamMemberId = wx.getStorageSync('teamMemberId')
+    let siteId = wx.getStorageSync('siteId')
+    if(!teamMemberId || !siteId){
+      params.fail && params.fail()
+      return
+    }
+
+    let cachedUserInfo = sessionStorage.getItem(teamMemberId)
+    if(cachedUserInfo){
+      params && params.success(JSON.parse(cachedUserInfo))
+      return
+    }
+
+    wx.request({
+      url: `${wx.window.HERA_API_HOST}/r/v1/sites/${siteId}/st/team_member_auth_infos/${teamMemberId}`,
+      success: res => {
+        if(res.data && res.data.data && res.data.data.userInfo){
+          let userInfo = res.data.data
+          // convert photo array to avatarUrl
+          // BE api : photo: [] => wx.getUserInfo userInfo.avatarUrl
+          if(userInfo && userInfo.userInfo && userInfo.userInfo.photo && Array.isArray(userInfo.userInfo.photo) && userInfo.userInfo.photo.length > 0){
+            userInfo.userInfo.avatarUrl = userInfo.userInfo.photo[0]
           }
-        },
-        params
-      ),
-      {
-        beforeAll: function (res) {
-          res.errMsg = res.errMsg.replace('operateWXData', 'getUserInfo')
-        },
-        beforeSuccess: function (res) {
-          res.rawData = res.data.data
-          try {
-            res.userInfo = JSON.parse(res.data.data)
-            res.signature = res.data.signature
-            res.data.encryptData &&
-              (console.group(new Date() + ' encryptData 字段即将废除'),
-                console.warn(
-                  '请使用 encryptedData 和 iv 字段进行解密，详见：https://mp.weixin.qq.com/debug/wxadoc/dev/api/open.html'
-                ),
-                console.groupEnd(),
-                (res.encryptData = res.data.encryptData))
-            res.data.encryptedData &&
-              ((res.encryptedData = res.data.encryptedData),
-                (res.iv = res.data.iv))
-            delete res.data
-          } catch (e) {}
+          sessionStorage.setItem(teamMemberId, JSON.stringify(userInfo))
+          params.success && params.success(userInfo)
+        }else{
+          params.fail && params.fail()
         }
       }
-    )
+    })
   },
   getFriends: function (params) {
     bridge.invokeMethod(
@@ -1019,11 +1084,15 @@ var apiObj = {
   chooseContact: function (params) {
     bridge.invokeMethod('chooseContact', params)
   },
-  makePhoneCall: function () {
-    var params =
-      arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}
-    paramCheck('makePhoneCall', params, { phoneNumber: '' }) &&
-      bridge.invokeMethod('makePhoneCall', params)
+  makePhoneCall: function (params) {
+    if(params.phoneNumber){
+      // H5 也能调用原生的拨号
+      window.location.href = `tel:${params.phoneNumber}`
+      params.success && params.success()
+    }else{
+      params.fail && params.fail()
+    }
+    params.complete && params.complete()
   },
   onAppRoute: function (params, t) {
     appRouteCallbacks.push(params)
@@ -1339,7 +1408,7 @@ var apiObj = {
     setTimeout(function () {
       var res = {
         errMsg: 'getExtConfig: ok',
-        extConfig: (0, apiObj.getExtConfigSync)()
+        extConfig: apiObj.getExtConfigSync() || {}
       }
       typeof params.success === 'function' && params.success(res)
       typeof params.complete === 'function' && params.complete(res)
@@ -1390,12 +1459,33 @@ var apiObj = {
     }
   },
   getExtConfigSync: function () {
-    if (!__wxConfig__.ext) return {}
-    try {
-      return JSON.parse(JSON.stringify(__wxConfig__.ext))
-    } catch (e) {
-      return {}
-    }
+    // polyfill wx.getExtConfigSync()
+    // 根据 siteId 获取 extConfig
+    // `DEFAULT_EXTCONFIG` 写死了大部分配置
+    // 理论上应该发网络请求去获取对应 siteId 的 extConfig
+    let siteId = wx.getStorageSync('siteId')
+    // let extConfigs = JSON.parse(localStorage.getItem('extConfigs') || '{}')
+    // let ext = extConfigs[siteId]
+    // if(!ext){
+    //   wx.request({
+    //     url: `${wx.window.HERA_API_HOST}/r/v1/mini_program/apps/${siteId}`,
+    //     success: (res) => {
+    //       debugger
+    //       ext = res && res.data && res.data.extJson
+    //       extConfigs[siteId] = ext
+    //       localStorage.setItem('extConfigs', JSON.stringify(extConfigs))
+    //     },
+    //     fail: (err) => {
+    //       debugger
+    //       console.error("SXL : getExtConfigSync failed ")
+    //       console.error(err)
+    //     }
+    //   })
+    // }
+
+    let ext = DEFAULT_EXTCONFIG
+    ext.attr.siteId = siteId
+    return ext
   },
   chooseAddress: function (params) {
     bridge.invokeMethod('openAddress', params, {
@@ -1801,5 +1891,14 @@ bridge.onMethod('onMapClick', function () {
 })
 
 utils.copyObj(wx, apiObj)
+
+// 小程序可以使用 `wx.isInWeb` 判断是否运行在 web 环境中
+wx.isInWeb = true
+
+// window and document will be `undefined`
+// in this way, we can ref window and document :tada ~
+wx.window = window
+wx.document = window.document
+
 window.wx = wx
 export default wx
